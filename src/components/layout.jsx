@@ -8,6 +8,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useStaticQuery, graphql } from 'gatsby';
+import { ThemeProvider } from 'styled-components';
+import theme from './theme';
 import './layout.css';
 
 const Layout = ({ children }) => {
@@ -23,13 +25,11 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      <div style={{maxWidth: 800, margin: 'auto', paddingTop: '1rem'}}>
-        <main>
-          {children}
-        </main>
-      </div>
+      <ThemeProvider theme={theme}>
+        <main>{children}</main>
+      </ThemeProvider>
     </>
-  );
+  )
 }
 
 Layout.propTypes = {
