@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import { useStaticQuery, graphql } from 'gatsby';
 import { ThemeProvider } from 'styled-components';
 import theme from './theme';
+import Header from './header/header';
 import './layout.css';
 
 const Layout = ({ children }) => {
@@ -26,6 +27,7 @@ const Layout = ({ children }) => {
   return (
     <>
       <ThemeProvider theme={theme}>
+        <Header />
         <main>{children}</main>
       </ThemeProvider>
     </>

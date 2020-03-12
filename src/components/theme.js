@@ -1,4 +1,7 @@
 export default {
+  header: {
+    height: '6rem',
+  },
   panel: {
     width: 300,
   },
