@@ -13,36 +13,7 @@ const IndexPage = () => (
     <AppContainer>
       <ArticlePanel />
       <MapContainer>
-        <h1>COVID-19 Tracker</h1>
-        <p>
-          Track relevant coronavirus news in your locale or travel destination.
-        </p>
-        <div>
-          <h4>This app uses:</h4>
-          <ul>
-            <li>
-              <a class="button" href="https://milligram.io/">
-                Milligram
-              </a>
-            </li>
-            <li>
-              <a
-                class="button"
-                href="https://www.npmjs.com/package/eventregistry"
-              >
-                Event Registry API
-              </a>
-            </li>
-            <li>
-              <a
-                class="button"
-                href="https://github.com/googlemaps/google-maps-services-js"
-              >
-                Google Maps API
-              </a>
-            </li>
-          </ul>
-        </div>
+        Google Map
       </MapContainer>
     </AppContainer>
   </Layout>
