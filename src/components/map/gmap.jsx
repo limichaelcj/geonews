@@ -1,5 +1,6 @@
 import React from 'react';
 import MapContainer from './container.css';
+import MapButton from './button.css';
 import SearchBox from './searchBox.css';
 
 const API_KEY = process.env.GMAP_API_KEY;
@@ -19,6 +20,7 @@ const GoogleMap = (props) => {
         userLocation: null,
     });
     const mapRef = React.useRef();
+    const myLocationButtonRef = React.useRef();
     const searchBoxRef = React.useRef();
 
     /*
@@ -84,6 +86,8 @@ const GoogleMap = (props) => {
                     zoom: 12,
                     mapTypeId: 'roadmap',
                     mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: false,
                 }
             );
             // assign gmap instance to state
@@ -110,6 +114,7 @@ const GoogleMap = (props) => {
     // initialize search box properties
     React.useEffect(() => {
         if ('google' in window && state.gmap && state.searchBox) {
+            state.gmap.controls[window.google.maps.ControlPosition.TOP_LEFT].push(myLocationButtonRef.current);
             state.gmap.controls[window.google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
 
             // bias searchBox results toward current map position
@@ -188,6 +193,11 @@ const GoogleMap = (props) => {
 
     return (
         <MapContainer ref={mapRef}>
+            <MapButton ref={myLocationButtonRef} onClick={getUserLocation}>
+                <i class="material-icons">
+                    my_location
+                </i>
+            </MapButton>
             <SearchBox ref={searchBoxRef} placeholder="Search a location" />
         </MapContainer>
     );
