@@ -13,13 +13,13 @@ const Header = (props) => {
         </HeaderCSS.left>
         <HeaderCSS.right>
           <li>
-            <a class="button button-clear" href="https://milligram.io/">
+            <a className="button button-clear" href="https://milligram.io/">
               Milligram
             </a>
           </li>
           <li>
             <a
-              class="button button-clear"
+              className="button button-clear"
               href="https://www.npmjs.com/package/eventregistry"
             >
               Event Registry API
@@ -27,7 +27,7 @@ const Header = (props) => {
           </li>
           <li>
             <a
-              class="button button-clear"
+              className="button button-clear"
               href="https://github.com/googlemaps/google-maps-services-js"
             >
               Google Maps API
