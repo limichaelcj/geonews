@@ -70,6 +70,7 @@ function SEO({ description, lang, meta, title }) {
       ].concat(meta)}
     >
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css" integrity="sha256-Ro/wP8uUi8LR71kwIdilf78atpu8bTEwrK5ZotZo+Zc=" crossorigin="anonymous" />
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
     </Helmet>
 );
 }

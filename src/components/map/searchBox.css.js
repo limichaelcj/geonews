@@ -1,11 +1,9 @@
 import styled from 'styled-components';
+import mapControl from './control.css';
 
 export default styled.input`
-    margin: 1rem;
-    padding: 1rem 1.5rem;
-    font-size: 14px;
-    border-radius: 10px;
+    ${mapControl}
     border: none;
-    box-shadow: ${props => props.theme.shadow.xs};
+    padding: 1rem 1.5rem;
     outline: none;
 `;

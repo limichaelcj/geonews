@@ -1,9 +1,20 @@
 export default {
+  color: {
+    primary: {
+      main: '#9b4dca'
+    },
+    text: {
+      main: '#606c76',
+    }
+  },
   header: {
     height: '6rem',
   },
   panel: {
     width: 300,
+  },
+  map: {
+    fontSize: '14px',
   },
   shadow: {
     xs:
