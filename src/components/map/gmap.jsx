@@ -1,16 +1,25 @@
 import React from 'react';
-import GmapCSS from './gmap.css';
+import MapContainer from './container.css';
 
 const API_KEY = process.env.GMAP_API_KEY;
 const endpoint = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}`;
 
 const GoogleMap = (props) => {
 
+    /*
+     *  State and ref declaration
+     */
+
     const [state, setState] = React.useState({
         gmap: null,
+        center: { lat: 30.5928, lng: 114.3055 },
         userLocation: null,
     });
     const mapRef = React.useRef();
+
+    /*
+     *  Functions
+     */
 
     const getUserLocation = function(){
         /*
@@ -30,25 +39,24 @@ const GoogleMap = (props) => {
 
     }
 
-    // center map to user location
-    const centerToUserLocation = function (position = null) {
+    // center map to geolocation
+    const centerToUserLocation = function (geolocation = null) {
         // get position data from arg or state
-        const positionRef = position ? position : state.userLocation;
-
-        // positionRef exists
-        if (positionRef) {
-          // set new coordsinates for map instance
-          const lat = positionRef.coords.latitude;
-          const lng = positionRef.coords.longitude;
-          state.gmap.setCenter({ lat, lng });
-        }
-
-        // set state if new geolocation position was given
+        const position = geolocation ? geolocation : state.userLocation;
+        
+        // if geolocation data exists
         if (position) {
-          setState(s => ({
-            ...s,
-            userLocation: position
-          }))
+            // set new coordsinates for map instance
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const coords = { lat, lng };
+
+            // update center and user geolocation
+            setState(s => ({
+                ...s,
+                center: {...coords},
+                userLocation: position,
+            }));
         }
     }
 
@@ -57,14 +65,19 @@ const GoogleMap = (props) => {
         alert(error);
     }
 
+    /*
+     *  React Effects
+     */
+
     // initialize gmap api
     React.useEffect(() => {
         const script = document.createElement('script');
         script.onload = () => {
             const gmap = new window.google.maps.Map(
                 mapRef.current,
-                { zoom: 12 }
+                { center: state.center , zoom: 12 }
             );
+            // assign gmap instance to state
             setState(s => ({
                 ...s,
                 gmap,
@@ -74,11 +87,19 @@ const GoogleMap = (props) => {
         document.getElementsByTagName('head')[0].appendChild(script);
     }, []);
 
-    // get user location when map is initiated
+    // get user location after map is initiated
     React.useEffect(getUserLocation, [state.gmap]);
 
+    // update center upon state change
+    React.useEffect(() => {
+        if (state.gmap) {
+            state.gmap.setCenter(state.center);
+        }
+    }, [state.center]);
+
     return (
-        <GmapCSS ref={mapRef} />
+        <MapContainer ref={mapRef}>
+        </MapContainer>
     );
 }
 
