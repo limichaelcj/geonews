@@ -35,12 +35,17 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
         gmap.setZoom(12);
     }
 
-    const centerToPlaceById = function(placeId) {
+    // use geocoder service to find place by ID and fit map to geometry bounds
+    const seekPlaceById = function(placeId) {
         geocoder.geocode({ placeId }, function (results, status) {
             if (status === 'OK') {
-                if (results[0]) {
-                    gmap.setZoom(11);
-                    gmap.setCenter(results[0].geometry.location);
+                const place = results[0];
+                if (place) {
+                    if (place.geometry) {
+                        gmap.fitBounds(place.geometry.bounds);
+                    } else {
+                        window.alert('No geometry found');
+                    }
                 } else {
                     window.alert('No results found');
                 }
@@ -61,8 +66,9 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
 
         // searched place was selected from autocomplete
         if (place.geometry) {
-            // move viewport to place
-            gmap.setCenter(place.geometry.location);
+            // since bounds is not included in autocomplete's geometry response,
+            // we must use geocoder service to find geometry bounds to fit map
+            seekPlaceById(place.place_id);
         }
 
         // text was submitted without autocomplete
@@ -77,7 +83,7 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
             autocomplete.getPlacePredictions(request, function (results, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     // center map to first result
-                    centerToPlaceById(results[0].place_id);
+                    seekPlaceById(results[0].place_id);
                 }   
             });
         }
@@ -102,7 +108,7 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
             gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(myLocationButtonRef.current);
             gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
             // set data fields to return when user selects place
-            searchBox.setFields(['address_components', 'geometry', 'icon', 'name']);
+            searchBox.setFields(['name', 'geometry', 'place_id']);
             // set search box listener
             searchBox.addListener('place_changed', handlePlaceChanged);
 
