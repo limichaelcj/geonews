@@ -4,6 +4,9 @@ import mapControl from './control.css';
 export default styled.input`
     ${mapControl}
     border: none;
-    padding: 1rem 1.5rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: 0;
+    padding: 1.05rem 1.5rem;
     outline: none;
 `;

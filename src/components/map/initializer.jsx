@@ -12,6 +12,8 @@ const GmapInitializer = (props) => {
     const [state, setState] = React.useState({
         google: null,
         gmap: null,
+        geocoder: null,
+        autocomplete: null,
     });
     // ref element to hold google map
     const mapRef = React.useRef();
@@ -31,10 +33,16 @@ const GmapInitializer = (props) => {
                     fullscreenControl: false,
                 }
             );
+            // create new places services
+            // const places = new window.google.maps.places.PlacesService(gmap);
+            const geocoder = new window.google.maps.Geocoder();
+            const autocomplete = new window.google.maps.places.AutocompleteService();
             // assign gmap instance to state
             setState({
                 google: window.google,
-                gmap
+                gmap,
+                geocoder,
+                autocomplete,
             });
         };
         script.src = endpoint;
@@ -44,7 +52,13 @@ const GmapInitializer = (props) => {
     return (
         <MapContainer ref={mapRef}>
             <Async watch={state.google && state.gmap}>
-                <GmapControls google={state.google} gmap={state.gmap} mapRef={mapRef} />
+                <GmapControls 
+                    google={state.google} 
+                    gmap={state.gmap} 
+                    geocoder={state.geocoder} 
+                    autocomplete={state.autocomplete} 
+                    mapRef={mapRef}
+                />
             </Async>
         </MapContainer>
     );

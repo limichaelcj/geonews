@@ -2,10 +2,9 @@ import React from 'react';
 import MapButton from './button.css';
 import SearchBox from './searchBox.css';
 
-const GmapControls = ({ google, gmap, mapRef }) => {
+const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
 
     const [searchBox, setSearchBox] = React.useState(null);
-    const [markers, setMarkers] = React.useState([]);
 
     const myLocationButtonRef = React.useRef();
     const searchBoxRef = React.useRef();
@@ -36,94 +35,79 @@ const GmapControls = ({ google, gmap, mapRef }) => {
         gmap.setZoom(12);
     }
 
-    // initialize search box
-    const initializeSearchBox = function() {
-        setSearchBox(new google.maps.places.SearchBox(searchBoxRef.current));
-    }
+    /*
+     *  Listeners
+     */
 
-    // attach controls
-    const attachMapControls = function() {
-        gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(myLocationButtonRef.current);
-        gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
-    }
+    const handlePlaceChanged = function() {
+        const place = searchBox.getPlace();
+        // check for data
+        if (!place) return;
 
-    const biasSearchBox = function() {
-        // bias searchBox results toward current map position
-        gmap.addListener('bounds_changed', function () {
-            searchBox.setBounds(gmap.getBounds());
-        });
-    }
+        // searched place was selected from autocomplete
+        if (place.geometry) {
+            // move viewport to place
+            gmap.setCenter(place.geometry.location);
+        }
 
-    const initSearchListener = function() {
-        // Listen for the event fired when the user selects a prediction and retrieve
-        // more details for that place.
-        searchBox.addListener('places_changed', function() {
-            const places = searchBox.getPlaces();
-
-            if (places.length < 1) {
-                return;
+        // text was submitted without autocomplete
+        else {
+            console.log(place)
+            // use places service to query text
+            const request = {
+                input: place.name,
+                types: ['(regions)'],
+                fields: ['name', 'geometry'],
             }
+            // get prediction
+            autocomplete.getPlacePredictions(request, function (searchResults, status) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    // center on first result
+                    const target = searchResults[0];
 
-            // clear old markers
-            markers.forEach(m => m.setMap(null));
-
-            // hydrate new markers
-            const nextMarkers = [];
-
-            // for each place, get icon, name, and location
-            const bounds = new google.maps.LatLngBounds();
-            places.forEach(place => {
-                // check invalid data
-                if (!place.geometry) {
-                    console.log("Returned place contains no geometry");
-                    return;
-                }
-                // define icon
-                const icon = {
-                    url: place.icon,
-                    size: new google.maps.Size(71, 71),
-                    origin: new google.maps.Point(0, 0),
-                    anchor: new google.maps.Point(17, 34),
-                    scaledSize: new google.maps.Size(25, 25)
-                };
-                // create marker for place
-                markers.push(new google.maps.Marker({
-                    map: gmap,
-                    icon,
-                    title: place.name,
-                    position: place.geometry.location,
-                }));
-                // sync viewport bounds
-                if (place.geometry.viewport) {
-                    // only geocodes have viewport
-                    bounds.union(place.geometry.viewport);
-                } else {
-                    bounds.extend(place.geometry.location);
-                }
+                    // get place with geocoder service
+                    geocoder.geocode({ 'placeId': target.id }, function(geocoderResults, status) {
+                        if (status === 'OK') {
+                            if (geocoderResults[0]) {
+                                gmap.setZoom(11);
+                                gmap.setCenter(geocoderResults[0].geometry.location);
+                            } else {
+                                window.alert('No results found');
+                            }
+                        } else {
+                            window.alert('Geocoder failed due to: ' + status);
+                        }
+                    });
+                }   
             });
+        }
 
-            // update map bounds
-            gmap.fitBounds(bounds);
-            setMarkers(nextMarkers);
-        });
     }
 
     /*
      *  React effects
      */
 
-    // init after component mount
+    // init search box after component mount
     React.useEffect(() => {
-        initializeSearchBox();
+        setSearchBox(new google.maps.places.Autocomplete(searchBoxRef.current, {
+            types: ['(regions)']
+        }));
     }, []);
 
     // init after search box mount
     React.useEffect(() => {
         if (searchBox) {
-            attachMapControls();
+            // attach controls to map
+            gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(myLocationButtonRef.current);
+            gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
+            // set data fields to return when user selects place
+            searchBox.setFields(['address_components', 'geometry', 'icon', 'name']);
+            // set search box listener
+            searchBox.addListener('place_changed', handlePlaceChanged);
+
+            // get user location after all configurations
             getUserLocation();
-            biasSearchBox();
-            initSearchListener();
         }
     }, [searchBox]);
 
