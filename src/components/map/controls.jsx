@@ -35,6 +35,21 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
         gmap.setZoom(12);
     }
 
+    const centerToPlaceById = function(placeId) {
+        geocoder.geocode({ placeId }, function (results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+                    gmap.setZoom(11);
+                    gmap.setCenter(results[0].geometry.location);
+                } else {
+                    window.alert('No results found');
+                }
+            } else {
+                window.alert('Geocoder failed due to: ' + status);
+            }
+        });
+    }
+
     /*
      *  Listeners
      */
@@ -52,7 +67,6 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
 
         // text was submitted without autocomplete
         else {
-            console.log(place)
             // use places service to query text
             const request = {
                 input: place.name,
@@ -60,24 +74,10 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
                 fields: ['name', 'geometry'],
             }
             // get prediction
-            autocomplete.getPlacePredictions(request, function (searchResults, status) {
+            autocomplete.getPlacePredictions(request, function (results, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    // center on first result
-                    const target = searchResults[0];
-
-                    // get place with geocoder service
-                    geocoder.geocode({ 'placeId': target.id }, function(geocoderResults, status) {
-                        if (status === 'OK') {
-                            if (geocoderResults[0]) {
-                                gmap.setZoom(11);
-                                gmap.setCenter(geocoderResults[0].geometry.location);
-                            } else {
-                                window.alert('No results found');
-                            }
-                        } else {
-                            window.alert('Geocoder failed due to: ' + status);
-                        }
-                    });
+                    // center map to first result
+                    centerToPlaceById(results[0].place_id);
                 }   
             });
         }
