@@ -11,7 +11,7 @@ export default {
     height: '6rem',
   },
   panel: {
-    width: 300,
+    width: '500px',
   },
   map: {
     fontSize: '14px',
