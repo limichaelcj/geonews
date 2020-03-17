@@ -54,13 +54,12 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
           {
             fields: ["name"],
             location: latlng,
-            radius: 30000,
-            type: "locality",
+            radius: 20000,
+            type: 'locality',
           },
           (results, status) => {
             const locales = []
             if (status === google.maps.places.PlacesServiceStatus.OK) {
-              console.log({ results })
               results.forEach(r => {
                 locales.push(r.name);
               })
@@ -117,7 +116,7 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
             // use places service to query text
             const request = {
                 input: place.name,
-                types: ['(cities)'],
+                types: ['(regions)'],
                 fields: ['name', 'geometry'],
             }
             // get prediction
@@ -138,7 +137,7 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
     // init search box after component mount
     React.useEffect(() => {
         setSearchBox(new google.maps.places.Autocomplete(searchBoxRef.current, {
-            types: ['(cities)']
+            types: ['(regions)']
         }));
     }, []);
 
