@@ -62,7 +62,6 @@ const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex, localeW
                         geocoder: state.geocoder,
                         autocomplete: state.autocomplete,
                     }}
-                    mapRef={mapRef}
                     userLocation={userLocation}
                     getUserLocation={getUserLocation}
                     setStateIndex={setStateIndex}
