@@ -130,12 +130,14 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
         }
     }
 
+    // update locale news for current viewport center location
     const handleUpdateOnMapCenter = function() {
         const center = gmap.getCenter();
         const latlng = {
             lat: center.lat(),
             lng: center.lng(),
         }
+        gmap.setZoom(11);
         getNearbyLocales(latlng, (_, locales) => {
             setStateIndex(s => ({
                 ...s,
