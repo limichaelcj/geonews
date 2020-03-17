@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Styled from './panel.css';
+import Panel from './panel.css';
 
 const apiKey = process.env.NEWS_API_KEY;
 
 const ArticlePanel = ({locales}) => {
+
+    const panelRef = React.useRef();
     
     const [state, setState] = React.useState({
         loading: true,
@@ -57,6 +59,8 @@ const ArticlePanel = ({locales}) => {
             ...s,
             loading: true,
         }));
+        // scroll panel to top after new search
+        panelRef.current.scrollTop = 0;
     }, [locales]);
 
     /*
@@ -64,7 +68,7 @@ const ArticlePanel = ({locales}) => {
      */
 
     return (
-      <Styled>
+      <Panel ref={panelRef}>
         <h4>Articles{locales.length > 0 ? ' near ' + locales.join(', ') : ''}</h4>
         {state.articles.length > 0 ? (
           state.articles.map((a, i) => (
@@ -83,7 +87,7 @@ const ArticlePanel = ({locales}) => {
         ) : (
           <p>No articles</p>
         )}
-      </Styled>
+      </Panel>
     )
 }
 
