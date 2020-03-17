@@ -46,7 +46,7 @@ const ArticlePanel = ({locales}) => {
         const localeQuery = locales.length > 0 ? ` AND (${locales.join(' OR ')})` : '';
         const keywords = encodeURI(`${topicQuery}${localeQuery}`);
         // build api endpoint
-        const endpoint = `http://newsapi.org/v2/everything?q=${keywords}&from=${dateString}&sortBy=popularity&apiKey=${apiKey}&language=en`;
+        const endpoint = `http://newsapi.org/v2/everything?q=${keywords}&from=${dateString}&sortBy=popularity&apiKey=${apiKey}&pageSize=100&language=en`;
         // fetch api
         console.log(locales)
         fetch(endpoint).then(res => {
