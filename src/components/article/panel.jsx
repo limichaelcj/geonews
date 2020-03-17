@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Panel from './panel.css';
 
 const apiKey = process.env.GATSBY_NEWS_API_KEY;
+const apiRoot = "https://newsapi.org/v2";
 
 const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) => {
 
@@ -73,13 +74,13 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
         }
         const query = encodeURI(keywords);
         // build api endpoint
-        const endpoint = `http://newsapi.org/v2/everything?q=${query}&from=${dateString}&sortBy=popularity&apiKey=${apiKey}&pageSize=100&language=en`;
+        const endpoint = `${apiRoot}/everything?q=${query}&from=${dateString}&sortBy=popularity&apiKey=${apiKey}&pageSize=100&language=en`;
         // fetch api
         fetchNewsApi(endpoint);
     }
 
     const fetchHeadlines = function() {
-      const endpoint = `http://newsapi.org/v2/top-headlines?pageSize=20&language=en&country=us&apiKey=${apiKey}`;
+      const endpoint = `${apiRoot}/top-headlines?pageSize=20&language=en&country=us&apiKey=${apiKey}`
       fetchNewsApi(endpoint);
     }
 
