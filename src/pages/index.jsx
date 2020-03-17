@@ -16,6 +16,8 @@ const IndexPage = () => {
   const [state, setState] = React.useState({
     userLocation: null,
     locales: [],
+    localeWeight: {},
+    localeSelected: null,
   });
 
   /*
@@ -29,27 +31,17 @@ const IndexPage = () => {
     }));
   }
 
-  const setLocales = (locales) => {
+  const setLocaleWeight = (localeWeight) => {
     setState(s => ({
       ...s,
-      locales
+      localeWeight,
     }));
   }
 
-  const addLocales = (locales) => {
+  const selectLocale = (localeName) => () => {
     setState(s => ({
       ...s,
-      locales: [
-        ...s.locales,
-        ...locales,
-      ]
-    }));
-  }
-
-  const clearLocales = () => {
-    setState(s => ({
-      ...s,
-      locales: [],
+      localeSelected: localeName,
     }));
   }
 
@@ -88,11 +80,17 @@ const IndexPage = () => {
     <Layout>
       <SEO title="COVID-19 Tracker" />
       <AppContainer>
-        <ArticlePanel locales={state.locales} />
+        <ArticlePanel
+          locales={state.locales}
+          localeSelected={state.localeSelected}
+          setLocaleWeight={setLocaleWeight}
+        />
         <GmapInitializer
           userLocation={state.userLocation}
           getUserLocation={getUserLocation}
           setStateIndex={setState}
+          localeWeight={state.localeWeight}
+          selectLocale={selectLocale}
         />
       </AppContainer>
     </Layout>

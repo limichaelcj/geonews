@@ -2,6 +2,7 @@ export default {
   color: {
     primary: {
       main: "#9b4dca",
+      rgb: "155,77,202",
     },
     text: {
       main: "#606c76",

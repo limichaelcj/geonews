@@ -6,7 +6,7 @@ import Async from '../util/async';
 const API_KEY = process.env.GMAP_API_KEY;
 const endpoint = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places`;
 
-const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex }) => {
+const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex, localeWeight, selectLocale }) => {
 
     // google object attached to window object
     const [state, setState] = React.useState({
@@ -66,6 +66,8 @@ const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex }) => {
                     userLocation={userLocation}
                     getUserLocation={getUserLocation}
                     setStateIndex={setStateIndex}
+                    localeWeight={localeWeight}
+                    selectLocale={selectLocale}
                 />
             </Async>
         </MapContainer>
