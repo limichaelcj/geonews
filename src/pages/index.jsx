@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '../components/layout';
 import SEO from '../components/seo';
 import Header from '../components/header/header';
-import { AppContainer } from './index.css';
+import { AppContainer } from '../styles/index.css';
 import ArticlePanel from '../components/article/panel';
 import GmapInitializer from '../components/map/initializer';
 
