@@ -1,5 +1,4 @@
 module.exports = {
-  pathPrefix: "/geonews",
   siteMetadata: {
     title: `GeoNews`,
     description: `Find geographically relevant news articles for your neighborhood or travel destination.`,
@@ -19,13 +18,13 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `gatsby-starter-basic`,
+        name: `GeoNews`,
         short_name: `minimal`,
         start_url: `/`,
         background_color: `#fff`,
         theme_color: `#fff`,
         display: `minimal-ui`,
-        icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+        icon: null, // This path is relative to the root of the site.
       },
     },
     // this (optional) plugin enables Progressive Web App + Offline functionality
