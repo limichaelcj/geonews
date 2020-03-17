@@ -41,7 +41,7 @@ const IndexPage = () => {
   const selectLocale = (localeName) => () => {
     setState(s => ({
       ...s,
-      localeSelected: localeName,
+      localeSelected: localeName === s.localeSelected ? null : localeName,
     }));
   }
 
