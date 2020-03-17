@@ -1,4 +1,5 @@
 module.exports = {
+  pathPrefix: "/geonews",
   siteMetadata: {
     title: `GeoNews`,
     description: `Find geographically relevant news articles for your neighborhood or travel destination.`,
