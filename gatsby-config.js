@@ -1,7 +1,7 @@
 module.exports = {
   siteMetadata: {
-    title: `Gatsby Basic Starter`,
-    description: `A basic Gatsby starter with a dynamic Image component.`,
+    title: `GeoNews`,
+    description: `Find geographically relevant news articles for your neighborhood or travel destination.`,
     author: `@mcli830`,
   },
   plugins: [

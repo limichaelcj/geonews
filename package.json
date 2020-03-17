@@ -1,7 +1,7 @@
 {
-  "name": "gatsby-starter-basic",
+  "name": "geonews",
   "private": true,
-  "description": "A basic Gatsby starter with a dynamic Image component.",
+  "description": "Find geographically relevant news articles for your neighborhood or travel destination.",
   "version": "0.1.0",
   "author": "Michael Li <li.michaelcj@gmail.com>",
   "dependencies": {
@@ -24,7 +24,11 @@
     "prettier": "^1.19.1"
   },
   "keywords": [
-    "gatsby"
+    "gatsby",
+    "google",
+    "google maps",
+    "news api",
+    "milligram"
   ],
   "license": "MIT",
   "scripts": {

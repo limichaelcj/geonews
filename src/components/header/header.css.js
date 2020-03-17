@@ -1,7 +1,5 @@
 import styled from 'styled-components';
 
-const headerBreakpoint = '900px';
-
 export const HeaderRoot = styled.header`
     width: 100%;
     height: ${props => props.theme.header.height};
@@ -48,8 +46,8 @@ const HeaderMenu = styled.ul`
 
 export const HeaderLeft = styled(HeaderMenu)`
     justify-content: flex-start;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
 `
 
 export const HeaderRight = styled(HeaderMenu)`
