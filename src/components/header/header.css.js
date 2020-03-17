@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+const headerBreakpoint = '900px';
+
 export const HeaderRoot = styled.header`
     width: 100%;
     height: ${props => props.theme.header.height};
@@ -16,8 +18,17 @@ export const HeaderRoot = styled.header`
         margin: 0;
     }
 
-    code {
-        padding: 1rem;
+    p {
+        padding: .1rem 0;
+        background-color: transparent;
+        margin: 0 !important;
+        font-size: 0.8em;
+    }
+
+    ${props => props.theme.media.tablet} {
+        a.button {
+            padding: 0 0.5rem;
+        }
     }
 `;
 
@@ -37,10 +48,20 @@ const HeaderMenu = styled.ul`
 
 export const HeaderLeft = styled(HeaderMenu)`
     justify-content: flex-start;
-`;
+    flex-direction: column;
+    align-items: flex-start;
+`
 
 export const HeaderRight = styled(HeaderMenu)`
     justify-content: flex-end;
+
+    ${props => props.theme.media.mobile} {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: scale(0.9);
+    }
+
 `
 
 export default {

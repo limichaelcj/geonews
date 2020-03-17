@@ -1,20 +1,20 @@
 export default {
   color: {
     primary: {
-      main: '#9b4dca'
+      main: "#9b4dca",
     },
     text: {
-      main: '#606c76',
-    }
+      main: "#606c76",
+    },
   },
   header: {
-    height: '6rem',
+    height: "6rem",
   },
   panel: {
-    width: '500px',
+    width: "500px",
   },
   map: {
-    fontSize: '14px',
+    fontSize: "14px",
   },
   shadow: {
     xs:
@@ -27,5 +27,9 @@ export default {
       "0px 4px 5px -2px rgba(0,0,0,0.2),0px 7px 10px 1px rgba(0,0,0,0.14),0px 2px 16px 1px rgba(0,0,0,0.12)",
     xl:
       "0px 5px 6px -3px rgba(0,0,0,0.2),0px 9px 12px 1px rgba(0,0,0,0.14),0px 3px 16px 2px rgba(0,0,0,0.12)",
+  },
+  media: {
+    mobile: `@media only screen and (max-width: 600px)`,
+    tablet: `@media only screen and (max-width: 900px)`,
   },
 }

@@ -5,32 +5,15 @@ const Header = (props) => {
     return (
       <HeaderCSS.root>
         <HeaderCSS.left>
-          <h3>COVID-19 Tracker</h3>
-          <code>
-              Track relevant coronavirus news in your locale or travel
-              destination.
-          </code>
+          <h4>COVID-19 Tracker</h4>
+          <p>
+            Get localized coronavirus news
+          </p>
         </HeaderCSS.left>
         <HeaderCSS.right>
           <li>
-            <a className="button button-clear" href="https://milligram.io/">
-              Milligram
-            </a>
-          </li>
-          <li>
-            <a
-              className="button button-clear"
-              href="https://www.npmjs.com/package/eventregistry"
-            >
-              Event Registry API
-            </a>
-          </li>
-          <li>
-            <a
-              className="button button-clear"
-              href="https://github.com/googlemaps/google-maps-services-js"
-            >
-              Google Maps API
+            <a className="button button-clear" href="https://mcli.dev/">
+              Made by mcli
             </a>
           </li>
         </HeaderCSS.right>
