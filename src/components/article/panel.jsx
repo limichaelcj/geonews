@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Panel from './panel.css';
 
-const apiKey = process.env.NEWS_API_KEY;
+const apiKey = process.env.GATSBY_NEWS_API_KEY;
 
 const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) => {
 
