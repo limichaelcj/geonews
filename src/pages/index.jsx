@@ -10,7 +10,7 @@ const IndexPage = () => {
   /*
    *  Page component handles:
    *    - user location
-   *    - article locale filtering strings
+   *    - article locale information
    */
 
   const [state, setState] = React.useState({
@@ -24,6 +24,7 @@ const IndexPage = () => {
    *  State handlers
    */
 
+  // store user geolocation data
   const setUserLocation = (userLocation) => {
     setState(s => ({
       ...s,
@@ -31,6 +32,7 @@ const IndexPage = () => {
     }));
   }
 
+  // used after fetching articles to define number of articles per focused locale
   const setLocaleWeight = (localeWeight) => {
     setState(s => ({
       ...s,
@@ -38,6 +40,7 @@ const IndexPage = () => {
     }));
   }
 
+  // function builder for map markers
   const selectLocale = (localeName) => () => {
     setState(s => ({
       ...s,

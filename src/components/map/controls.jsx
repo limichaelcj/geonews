@@ -3,7 +3,16 @@ import MapButton from './button.css';
 import SearchBox from './searchBox.css';
 import Control from './control.css';
 
-const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLocation, setStateIndex, localeWeight, selectLocale }) => {
+const GmapControls = ({
+    google,
+    gmap,
+    service,
+    userLocation,
+    getUserLocation,
+    setStateIndex,
+    localeWeight,
+    selectLocale
+}) => {
 
     const [searchBox, setSearchBox] = React.useState(null);
     const [markers, setMarkers] = React.useState([]);
