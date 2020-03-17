@@ -20,7 +20,6 @@
     "styled-components": "^5.0.1"
   },
   "devDependencies": {
-    "gh-pages": "^2.2.0",
     "prettier": "^1.19.1"
   },
   "keywords": [
@@ -37,8 +36,7 @@
     "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
     "start": "npm run develop",
     "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "deploy": "gatsby build --prefix-paths && gh-pages -d public"
+    "clean": "gatsby clean"
   },
   "repository": {
     "type": "git",
