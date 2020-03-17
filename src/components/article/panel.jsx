@@ -4,20 +4,27 @@ import Styled from './panel.css';
 
 const apiKey = process.env.NEWS_API_KEY;
 
-const ArticlePanel = ({articles}) => {
+const ArticlePanel = ({locales}) => {
     
     const [state, setState] = React.useState({
         loading: true,
         articles: [],
     });
+
+    /*
+     *  Functions
+     */
     
-    const fetchArticles = function(locations) {
+    // Get articles from News API.
+    // Default query without specified locales will
+    // return top headlines without location filtering.
+    const fetchArticles = function() {
         // get date params        
         const lastWeek = new Date();
         lastWeek.setDate(new Date().getDate() - 7);
         const dateString = `${lastWeek.getFullYear()}-${('0'+(lastWeek.getMonth()+1)).slice(-2)}-${('0'+lastWeek.getDate()).slice(-2)}`;
         // form keyword/location query
-        const keywords = ['coronavirus', ...locations].join(' ').replace(' ', '%20');
+        const keywords = ['coronavirus', ...locales].join(' ').replace(' ', '%20');
         // build api endpoint
         const endpoint = `http://newsapi.org/v2/everything?q="${keywords}"&from=${dateString}&sortBy=publishedAt&apiKey=${apiKey}`;
         console.log(endpoint);
