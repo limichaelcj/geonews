@@ -14,6 +14,11 @@ const ArticlePanel = ({locales}) => {
     /*
      *  Functions
      */
+
+    const formatContent = (content) => {
+        if (!content) return '';
+        return content.replace(/(<.*>|\[.*chars\]$)/g, '');
+    }
     
     // Get articles from News API.
     // Default query without specified locales will
@@ -59,14 +64,19 @@ const ArticlePanel = ({locales}) => {
 
     return (
       <Styled>
-        <h4>Articles</h4>
+        <h4>Articles{locales.length > 0 ? ' near ' + locales.join(', ') : ''}</h4>
         {state.articles.length > 0 ? (
           state.articles.map((a, i) => (
             <li key={i}>
+              <a href={a.url} target="__blank" rel="noreferrer noopener">
+                <h5>
+                  <strong>{a.title}</strong>
+                </h5>
+              </a>
               <h6>
-                <strong>{a.title}</strong>
+                <em>{a.author}</em>
               </h6>
-              <p>{a.description}</p>
+              <p>{formatContent(a.content || a.description)}</p>
             </li>
           ))
         ) : (
