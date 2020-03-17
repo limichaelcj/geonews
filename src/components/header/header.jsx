@@ -12,7 +12,7 @@ const Header = (props) => {
         </HeaderCSS.left>
         <HeaderCSS.right>
           <li>
-            <a className="button button-clear" href="https://mcli.dev/">
+            <a className="button button-clear" href="https://mcli.dev/" target="_blank" rel="noreferrer noopener">
               Made by mcli
             </a>
           </li>
