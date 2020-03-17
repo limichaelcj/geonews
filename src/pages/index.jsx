@@ -57,7 +57,7 @@ const IndexPage = () => {
    *  Functions
    */
 
-  const getUserLocation = function(callback = (p) => console.log(p)) {
+  const getUserLocation = function(callback = () => null) {
     if ("navigator" in window && window.navigator.geolocation) {
       // first callback is given a position argument from .getCurrentPosition()
       navigator.geolocation.getCurrentPosition(
@@ -71,9 +71,14 @@ const IndexPage = () => {
    *  Effects
    */
 
+  // get user location on page load
   React.useEffect(() => {
     getUserLocation(setUserLocation);
   }, []);
+
+  React.useEffect(() => {
+    console.log(state);
+  })
 
   /*
    *  Render

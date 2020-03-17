@@ -2,7 +2,7 @@ import React from 'react';
 import MapButton from './button.css';
 import SearchBox from './searchBox.css';
 
-const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef, userLocation, getUserLocation, setStateIndex }) => {
+const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLocation, setStateIndex }) => {
 
     const [searchBox, setSearchBox] = React.useState(null);
 
@@ -14,37 +14,64 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef, userLocati
      */
 
     // center map to geolocation
-    const centerToPosition = function(position) {
-        if (!position) return null;
-
-        // set new coordsinates for map instance
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const coords = { lat, lng };
+    const centerToPosition = function(latlng) {
+        if (!latlng || !latlng.lat || !latlng.lng) return null;
 
         // move map center
-        gmap.setCenter(coords);
+        gmap.setCenter(latlng);
         gmap.setZoom(12);
     }
 
     // use geocoder service to find place by ID and fit map to geometry bounds
     const seekPlaceById = function(placeId) {
-        geocoder.geocode({ placeId }, function (results, status) {
-            if (status === 'OK') {
-                const place = results[0];
-                if (place) {
-                    if (place.geometry) {
-                        gmap.fitBounds(place.geometry.bounds);
-                    } else {
-                        window.alert('No geometry found');
-                    }
-                } else {
-                    window.alert('No results found');
-                }
-            } else {
-                window.alert('Geocoder failed due to: ' + status);
+        service.geocoder.geocode({ placeId }, function (results, status) {
+            if (status !== 'OK') return window.alert('Geocoder has failed due to:', status);
+            
+            const place = results[0];
+            if (!place) return window.alert('No results found');
+            if (!place.geometry) return window.alert('No geometry found');
+
+            // fit map to bounds
+            gmap.fitBounds(place.geometry.bounds);
+            const latlng = {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng(),
             }
+            // update state with nearby locales for article filtering
+            getNearbyLocales(latlng, (_, locales) => {
+                setStateIndex(s => ({
+                    ...s,
+                    locales,
+                }));
+            });
         });
+    }
+
+    // use places service to find nearby localities
+    const getNearbyLocales = function(latlng, callback) {
+
+        service.places.nearbySearch(
+          {
+            fields: ["name"],
+            location: latlng,
+            radius: 30000,
+            type: "locality",
+          },
+          (results, status) => {
+            const locales = []
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+              console.log({ results })
+              results.forEach(r => {
+                locales.push(r.name);
+              })
+            }
+
+            // defer to callback
+            if (callback) {
+                callback(latlng, locales);
+            }
+          }
+        );
     }
 
     /*
@@ -54,14 +81,21 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef, userLocati
     // click handler for centering on user location
     const handleUpdateOnUserLocation = function() {        
         getUserLocation((geolocation) => {
-            // TODO: get surrounding locale from location
+            if (!geolocation) {
+                return;
+            }
 
+            const latlng = {
+                lat: geolocation.coords.latitude,
+                lng: geolocation.coords.longitude,
+            }
 
-            // update state
-            setStateIndex(s => ({
-                userLocation: geolocation,
-                locales: [],
-            }))
+            getNearbyLocales(latlng, (location, locales) => {
+                setStateIndex(s => ({
+                    userLocation: location,
+                    locales,
+                }))
+            });
         });
     }
 
@@ -87,7 +121,7 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef, userLocati
                 fields: ['name', 'geometry'],
             }
             // get prediction
-            autocomplete.getPlacePredictions(request, function (results, status) {
+            service.autocomplete.getPlacePredictions(request, function (results, status) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     // center map to first result
                     seekPlaceById(results[0].place_id);
@@ -120,7 +154,7 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef, userLocati
             searchBox.addListener('place_changed', handlePlaceChanged);
 
             // get user location after all configurations
-            getUserLocation();
+            handleUpdateOnUserLocation();
         }
     }, [searchBox]);
 

@@ -11,4 +11,11 @@ export default styled.ul`
     padding: 2rem;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    list-style: none;
+
+    li {
+        border-top: 1px solid rgba(0,0,0,0.2);
+        padding: 2rem 0;
+    }
 `

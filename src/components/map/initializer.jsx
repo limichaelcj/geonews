@@ -12,6 +12,7 @@ const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex }) => {
     const [state, setState] = React.useState({
         google: null,
         gmap: null,
+        places: null,
         geocoder: null,
         autocomplete: null,
     });
@@ -34,13 +35,14 @@ const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex }) => {
                 }
             );
             // create new places services
-            // const places = new window.google.maps.places.PlacesService(gmap);
+            const places = new window.google.maps.places.PlacesService(gmap);
             const geocoder = new window.google.maps.Geocoder();
             const autocomplete = new window.google.maps.places.AutocompleteService();
             // assign gmap instance to state
             setState({
                 google: window.google,
                 gmap,
+                places,
                 geocoder,
                 autocomplete,
             });
@@ -54,9 +56,12 @@ const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex }) => {
             <Async watch={state.google && state.gmap}>
                 <GmapControls 
                     google={state.google} 
-                    gmap={state.gmap} 
-                    geocoder={state.geocoder} 
-                    autocomplete={state.autocomplete} 
+                    gmap={state.gmap}
+                    service={{
+                        places: state.places,
+                        geocoder: state.geocoder,
+                        autocomplete: state.autocomplete,
+                    }}
                     mapRef={mapRef}
                     userLocation={userLocation}
                     getUserLocation={getUserLocation}
