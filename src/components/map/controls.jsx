@@ -1,13 +1,14 @@
 import React from 'react';
 import MapButton from './button.css';
 import SearchBox from './searchBox.css';
+import Control from './control.css';
 
 const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLocation, setStateIndex }) => {
 
     const [searchBox, setSearchBox] = React.useState(null);
 
-    const myLocationButtonRef = React.useRef();
     const searchBoxRef = React.useRef();
+    const controlRef = React.useRef();
 
     /*
      *  Functions
@@ -127,7 +128,20 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
                 }   
             });
         }
+    }
 
+    const handleUpdateOnMapCenter = function() {
+        const center = gmap.getCenter();
+        const latlng = {
+            lat: center.lat(),
+            lng: center.lng(),
+        }
+        getNearbyLocales(latlng, (_, locales) => {
+            setStateIndex(s => ({
+                ...s,
+                locales,
+            }));
+        });
     }
 
     /*
@@ -145,8 +159,7 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
     React.useEffect(() => {
         if (searchBox) {
             // attach controls to map
-            gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(myLocationButtonRef.current);
-            gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(searchBoxRef.current);
+            gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(controlRef.current);
             // set data fields to return when user selects place
             searchBox.setFields(['name', 'geometry', 'place_id']);
             // set search box listener
@@ -164,15 +177,15 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
 
 
     return (
-      <>
-        <MapButton
-          ref={myLocationButtonRef}
-          onClick={handleUpdateOnUserLocation}
-        >
+      <Control ref={controlRef}>
+        <MapButton onClick={handleUpdateOnUserLocation} title="Get news near me">
           <i className="material-icons">my_location</i>
         </MapButton>
         <SearchBox ref={searchBoxRef} placeholder="Search a location" />
-      </>
+        <MapButton onClick={handleUpdateOnMapCenter} title="Get news at this location">
+          <i className="material-icons">pin_drop</i>
+        </MapButton>
+      </Control>
     )
 }
 

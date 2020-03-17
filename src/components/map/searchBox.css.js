@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import mapControl from './control.css';
+import { controlBaseCSS } from './control.css';
 
 export default styled.input`
-    ${mapControl}
+    ${controlBaseCSS}
     border: none;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
