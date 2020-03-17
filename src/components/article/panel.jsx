@@ -4,7 +4,7 @@ import Panel from './panel.css';
 
 const apiKey = process.env.NEWS_API_KEY;
 
-const ArticlePanel = ({locales}) => {
+const ArticlePanel = ({locales, setLocaleWeight, localeSelected}) => {
 
     const panelRef = React.useRef();
     
@@ -27,7 +27,7 @@ const ArticlePanel = ({locales}) => {
         if (!locales || locales.length < 1) return;
 
         locales.forEach(lname => {
-            if (article.title.includes(lname) || article.content.includes(lname)) {
+            if ((article.title && article.title.includes(lname)) || (article.content && article.content.includes(lname))) {
                 return article.locale = lname;
             }
         })
@@ -54,10 +54,10 @@ const ArticlePanel = ({locales}) => {
         }).then(res => {
 
             const articles = res.articles || [];
-        
+
             articles.forEach(art => {
                 getTopicLocale(art);
-            })
+            });
 
             setState(s => ({
                 loading: false,
@@ -81,16 +81,38 @@ const ArticlePanel = ({locales}) => {
         panelRef.current.scrollTop = 0;
     }, [locales]);
 
+    // update localeWeights after fetchArticles
+    React.useEffect(() => {
+        // only trigger when finished loading
+        if (!state.loading) {
+            const weights = {};
+          
+            state.articles.forEach(art => {
+                // increment locale tally
+                if (art.locale) {
+                  if (weights.hasOwnProperty(art.locale)) {
+                    weights[art.locale]++;
+                  } else {
+                    weights[art.locale] = 1;
+                  }
+                }
+            });
+
+            // update index localeWeights
+            setLocaleWeight(weights);
+        }
+    }, [state.loading, state.articles]);
+
     /*
      *  Render
      */
 
     return (
-      <Panel ref={panelRef}>
+      <Panel.list ref={panelRef}>
         <h4>News{locales.length > 0 ? " near " + locales.join(", ") : ""}</h4>
         {state.articles.length > 0 ? (
           state.articles.filter(a => !!a.locale).map((a, i) => (
-            <li key={i}>
+            <Panel.item key={i} highlight={a.locale === localeSelected}>
               <a href={a.url} target="__blank" rel="noreferrer noopener">
                 <h5>
                   <strong>{a.title}</strong>
@@ -107,12 +129,12 @@ const ArticlePanel = ({locales}) => {
               </h6>
               <p>{formatContent(a.content || a.description)}</p>
               <em>{new Date(a.publishedAt).toDateString()}</em>
-            </li>
+            </Panel.item>
           ))
         ) : (
-          <p>No articles</p>
+          <Panel.item>No articles</Panel.item>
         )}
-      </Panel>
+      </Panel.list>
     )
 }
 

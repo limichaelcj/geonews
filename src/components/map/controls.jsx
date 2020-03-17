@@ -3,9 +3,10 @@ import MapButton from './button.css';
 import SearchBox from './searchBox.css';
 import Control from './control.css';
 
-const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLocation, setStateIndex }) => {
+const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLocation, setStateIndex, localeWeight, selectLocale }) => {
 
     const [searchBox, setSearchBox] = React.useState(null);
+    const [markers, setMarkers] = React.useState([]);
 
     const searchBoxRef = React.useRef();
     const controlRef = React.useRef();
@@ -23,26 +24,59 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
         gmap.setZoom(12);
     }
 
-    // use geocoder service to find place by ID and fit map to geometry bounds
-    const seekPlaceById = function(placeId) {
-        service.geocoder.geocode({ placeId }, function (results, status) {
+    // get latlng literal
+    const getLatLngLiteralFromLocation = function(location) {
+        return {
+            lat: location.lat(),
+            lng: location.lng(),
+        }
+    }
+    
+    // get most relevant google place based on text input
+    const getFirstPlacePrediction = function(placeName, callback) {
+        const request = {
+            input: placeName,
+            types: ['(regions)'],
+            fields: ['name', 'geometry'],
+        }
+        // get prediction
+        service.autocomplete.getPlacePredictions(request, function (results, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK && callback) {
+                // center map to first result
+                callback(results[0]);
+            }   
+        });
+    } 
+
+    // geocode by id
+    const geocodeById = function(placeId, callback) {
+        service.geocoder.geocode({ placeId }, function(results, status) {
             if (status !== 'OK') return window.alert('Geocoder has failed due to:', status);
             
             const place = results[0];
             if (!place) return window.alert('No results found');
             if (!place.geometry) return window.alert('No geometry found');
 
-            // fit map to bounds
-            gmap.fitBounds(place.geometry.bounds);
-            const latlng = {
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
+            if (callback) {
+                callback(place);
             }
+        });
+    }
+
+
+    // use geocoder service to find place by ID and fit map to geometry bounds
+    const seekPlaceById = function(placeId) {
+        geocodeById(placeId, (place) => {
+            // fit map bounds
+            gmap.fitBounds(place.geometry.bounds);
+            // get latlng literal
+            const latlng = getLatLngLiteralFromLocation(place.geometry.location);
             // update state with nearby locales for article filtering
             getNearbyLocales(latlng, (_, locales) => {
                 setStateIndex(s => ({
                     ...s,
                     locales,
+                    localeSelected: null,
                 }));
             });
         });
@@ -92,8 +126,10 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
 
             getNearbyLocales(latlng, (location, locales) => {
                 setStateIndex(s => ({
+                    ...s,
                     userLocation: location,
                     locales,
+                    localeSelected: null,
                 }))
             });
         });
@@ -114,18 +150,9 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
 
         // text was submitted without autocomplete
         else {
-            // use places service to query text
-            const request = {
-                input: place.name,
-                types: ['(regions)'],
-                fields: ['name', 'geometry'],
-            }
-            // get prediction
-            service.autocomplete.getPlacePredictions(request, function (results, status) {
-                if (status === google.maps.places.PlacesServiceStatus.OK) {
-                    // center map to first result
-                    seekPlaceById(results[0].place_id);
-                }   
+            // use autocomplete service to get most relevant place and seek it by id
+            getFirstPlacePrediction(place.name, (prediction) => {
+                seekPlaceById(prediction.place_id);
             });
         }
     }
@@ -133,15 +160,13 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
     // update locale news for current viewport center location
     const handleUpdateOnMapCenter = function() {
         const center = gmap.getCenter();
-        const latlng = {
-            lat: center.lat(),
-            lng: center.lng(),
-        }
+        const latlng = getLatLngLiteralFromLocation(center);
         gmap.setZoom(11);
         getNearbyLocales(latlng, (_, locales) => {
             setStateIndex(s => ({
                 ...s,
                 locales,
+                localeSelected: null,
             }));
         });
     }
@@ -177,6 +202,54 @@ const GmapControls = ({ google, gmap, service, mapRef, userLocation, getUserLoca
         centerToPosition(userLocation);
     }, [userLocation]);
 
+    // add markers on localeWeight change
+    React.useEffect(() => {
+        // clear map markers
+        markers.forEach(m => m.setMap(null));
+
+        if (Object.keys(localeWeight).length < 1) {
+            return setMarkers([]);
+        }
+            
+        // make new markers based on localeWeight
+        Promise.all(Object.entries(localeWeight).map(([localeName, weight]) => {
+            return new Promise((resolve, reject) => {
+                getFirstPlacePrediction(localeName, (prediction) => {
+                    geocodeById(prediction.place_id, (place) => {
+                        // get latlng literal
+                        const latlng = getLatLngLiteralFromLocation(place.geometry.location);
+                        // resolve promise with marker data
+                        resolve({
+                            coords: latlng,
+                            weight,
+                            localeName,
+                        });
+                    });
+                });
+            });
+        })).then(markerData => {
+            const markerInstances = [];
+            // render markers
+            markerData.forEach(m => {
+                // add new marker
+                const marker = new google.maps.Marker({
+                    position: m.coords,
+                    label: m.weight.toString(),
+                    title: m.localeName,
+                });
+                marker.addListener('click', selectLocale(m.localeName));
+                marker.setMap(gmap);
+                markerInstances.push(marker);
+            });
+            // update marker state
+            setMarkers(markerInstances);
+        });
+
+    }, [localeWeight]);
+
+    // render markers on marker state change
+    React.useEffect(() => {
+    }, [markers])
 
     return (
       <Control ref={controlRef}>
