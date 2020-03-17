@@ -3,7 +3,7 @@ import MapContainer from './container.css';
 import GmapControls from './controls';
 import Async from '../util/async';
 
-const API_KEY = process.env.GMAP_API_KEY;
+const API_KEY = process.env.GATSBY_GMAP_API_KEY;
 const endpoint = `https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places`;
 
 const GmapInitializer = ({ userLocation, getUserLocation, setStateIndex, localeWeight, selectLocale }) => {
