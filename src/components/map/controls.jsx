@@ -2,7 +2,7 @@ import React from 'react';
 import MapButton from './button.css';
 import SearchBox from './searchBox.css';
 
-const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
+const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef, userLocation, getUserLocation, setStateIndex }) => {
 
     const [searchBox, setSearchBox] = React.useState(null);
 
@@ -12,14 +12,6 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
     /*
      *  Functions
      */
-
-    // retrieve user location from browser's navigator
-    const getUserLocation = function () {
-        if (gmap && 'navigator' in window && window.navigator.geolocation) {
-            // first callback is given a position argument from .getCurrentPosition()
-            navigator.geolocation.getCurrentPosition(centerToPosition, (err) => alert(err));
-        }
-    }
 
     // center map to geolocation
     const centerToPosition = function(position) {
@@ -56,9 +48,24 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
     }
 
     /*
-     *  Listeners
+     *  Handlers
      */
 
+    // click handler for centering on user location
+    const handleUpdateOnUserLocation = function() {        
+        getUserLocation((geolocation) => {
+            // TODO: get surrounding locale from location
+
+
+            // update state
+            setStateIndex(s => ({
+                userLocation: geolocation,
+                locales: [],
+            }))
+        });
+    }
+
+    // handle search box entry
     const handlePlaceChanged = function() {
         const place = searchBox.getPlace();
         // check for data
@@ -76,7 +83,7 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
             // use places service to query text
             const request = {
                 input: place.name,
-                types: ['(regions)'],
+                types: ['(cities)'],
                 fields: ['name', 'geometry'],
             }
             // get prediction
@@ -97,7 +104,7 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
     // init search box after component mount
     React.useEffect(() => {
         setSearchBox(new google.maps.places.Autocomplete(searchBoxRef.current, {
-            types: ['(regions)']
+            types: ['(cities)']
         }));
     }, []);
 
@@ -117,17 +124,23 @@ const GmapControls = ({ google, gmap, geocoder, autocomplete, mapRef }) => {
         }
     }, [searchBox]);
 
+    // update map on user location change
+    React.useEffect(() => {
+        centerToPosition(userLocation);
+    }, [userLocation]);
+
 
     return (
-        <>
-            <MapButton ref={myLocationButtonRef} onClick={getUserLocation}>
-                <i className="material-icons">
-                    my_location
-                </i>
-            </MapButton>
-            <SearchBox ref={searchBoxRef} placeholder="Search a location" />
-        </>
-    );
+      <>
+        <MapButton
+          ref={myLocationButtonRef}
+          onClick={handleUpdateOnUserLocation}
+        >
+          <i className="material-icons">my_location</i>
+        </MapButton>
+        <SearchBox ref={searchBoxRef} placeholder="Search a location" />
+      </>
+    )
 }
 
 export default GmapControls;
