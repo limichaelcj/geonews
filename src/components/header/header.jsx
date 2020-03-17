@@ -1,14 +1,26 @@
 import React from 'react';
 import HeaderCSS from './header.css';
+import Form from './form.css';
 
-const Header = (props) => {
+const Header = ({ setSearchTopic }) => {
+
+    const searchTopicRef = React.useRef(); 
+
+    const handleSearchTopicSubmit = (e) => {
+        e.preventDefault();
+
+        if (searchTopicRef.current) {
+          setSearchTopic(searchTopicRef.current.value);
+        }
+    }
+
     return (
       <HeaderCSS.root>
         <HeaderCSS.left>
-          <h4>COVID-19 Tracker</h4>
-          <p>
-            Get localized coronavirus news
-          </p>
+          <h3>GeoNews</h3>
+          <Form onSubmit={handleSearchTopicSubmit}>
+            <input ref={searchTopicRef} placeholder="Search topic" />
+          </Form>
         </HeaderCSS.left>
         <HeaderCSS.right>
           <li>

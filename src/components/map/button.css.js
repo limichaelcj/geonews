@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { controlBaseCSS } from './control.css';
 
 export default styled.button`

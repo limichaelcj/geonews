@@ -1,6 +1,7 @@
 import React from 'react';
 import Layout from '../components/layout';
 import SEO from '../components/seo';
+import Header from '../components/header/header';
 import { AppContainer } from './index.css';
 import ArticlePanel from '../components/article/panel';
 import GmapInitializer from '../components/map/initializer';
@@ -14,6 +15,7 @@ const IndexPage = () => {
    */
 
   const [state, setState] = React.useState({
+    searchTopic: null,
     userLocation: null,
     locales: [],
     localeWeight: {},
@@ -48,6 +50,14 @@ const IndexPage = () => {
     }));
   }
 
+  // set new search topic
+  const setSearchTopic = (searchTopic) => {
+    setState(s => ({
+      ...s,
+      searchTopic,
+    }));
+  }
+
   /*
    *  Functions
    */
@@ -71,22 +81,23 @@ const IndexPage = () => {
     getUserLocation(setUserLocation);
   }, []);
 
-  React.useEffect(() => {
-    console.log(state);
-  })
-
   /*
    *  Render
    */
 
   return (
     <Layout>
-      <SEO title="COVID-19 Tracker" />
+      <SEO title="GeoNews" />
+      <Header
+        searchTopic={state.searchTopic}
+        setSearchTopic={setSearchTopic}
+      />
       <AppContainer>
         <ArticlePanel
           locales={state.locales}
           localeSelected={state.localeSelected}
           setLocaleWeight={setLocaleWeight}
+          searchTopic={state.searchTopic}
         />
         <GmapInitializer
           userLocation={state.userLocation}
@@ -97,7 +108,7 @@ const IndexPage = () => {
         />
       </AppContainer>
     </Layout>
-  );
+  )
 }
 
 export default IndexPage;
