@@ -18,6 +18,7 @@ const IndexPage = () => {
         searchTopic: null,
         locales: [],
         localeWeight: {},
+        updateMarker: true,
         localeSelected: null,
     });
 
@@ -26,10 +27,11 @@ const IndexPage = () => {
     */
 
     // used after fetching articles to define number of articles per focused locale
-    const setLocaleWeight = (localeWeight) => {
+    const setLocaleWeight = (localeWeight, updateMarker) => {
         setState(s => ({
             ...s,
             localeWeight,
+            updateMarker,
         }));
     }
 
@@ -71,6 +73,7 @@ const IndexPage = () => {
                     setStateIndex={setState}
                     localeWeight={state.localeWeight}
                     selectLocale={selectLocale}
+                    updateMarkers={state.updateMarkers}
                 />
             </AppContainer>
         </Layout>

@@ -5,7 +5,7 @@ import Control from './control.css';
 import { useGeolocation } from '../context/geolocation';
 import { useGmap } from '../context/gmap';
 
-const GmapControls = ({ setStateIndex, localeWeight, selectLocale }) => {
+const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers }) => {
 
     const geo = useGeolocation();
     const { userLocation } = geo;
@@ -207,6 +207,10 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale }) => {
 
     // add markers on localeWeight change
     React.useEffect(() => {
+        // only update if state allows
+        if (!updateMarkers) {
+            return;
+        }
         // clear map markers
         markers.forEach(m => m.setMap(null));
 
