@@ -145,13 +145,13 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
                             <strong dangerouslySetInnerHTML={createMarkup(a.title)} />
                         </h5>
                         </a>
-                        <h6>
+                        {/* <h6>
                             <em>{locales[0]}</em>
                             <span> &ndash; </span>
-                            <em>{new Date(a.datePublished).toDateString()}</em>
-                        </h6>
+                            <em>{}</em>
+                        </h6> */}
                         <p dangerouslySetInnerHTML={createMarkup((a.description || a.body).slice(0, 300))} />
-                        <em>{new Date(a.publishedAt).toDateString()}</em>
+                        <em>{new Date(a.datePublished).toDateString()}</em>
                     </Panel.item>
                 ))
         ) : (

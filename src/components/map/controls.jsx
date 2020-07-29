@@ -92,7 +92,6 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale }) => {
 
     // use places service to find nearby localities
     const getNearbyLocales = function(latlng, callback) {
-
         places.nearbySearch(
           {
             fields: ["name"],
@@ -104,9 +103,8 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale }) => {
           (results, status) => {
             const locales = []
             if (status === google.maps.places.PlacesServiceStatus.OK) {
-              results.forEach(r => {
-                locales.push(r.name);
-              })
+                // get first locale only
+                locales.push(results[0].name);
             }
 
             // defer to callback
