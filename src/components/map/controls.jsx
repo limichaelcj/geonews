@@ -2,17 +2,16 @@ import React from 'react';
 import MapButton from './button.css';
 import SearchBox from './searchBox.css';
 import Control from './control.css';
+import { useGeolocation } from '../context/geolocation';
+import { useGmap } from '../context/gmap';
 
-const GmapControls = ({
-    google,
-    gmap,
-    service,
-    userLocation,
-    getUserLocation,
-    setStateIndex,
-    localeWeight,
-    selectLocale
-}) => {
+const GmapControls = ({ setStateIndex, localeWeight, selectLocale }) => {
+
+    const geo = useGeolocation();
+    const { userLocation } = geo;
+
+    const gmap = useGmap();
+    const { google, map, places, geocoder, autocomplete } = gmap;
 
     const [searchBox, setSearchBox] = React.useState(null);
     const [markers, setMarkers] = React.useState([]);
@@ -29,8 +28,8 @@ const GmapControls = ({
         if (!latlng || !latlng.lat || !latlng.lng) return null;
 
         // move map center
-        gmap.setCenter(latlng);
-        gmap.setZoom(12);
+        map.setCenter(latlng);
+        map.setZoom(12);
     }
 
     // get latlng literal
@@ -49,7 +48,7 @@ const GmapControls = ({
             fields: ['name', 'geometry'],
         }
         // get prediction
-        service.autocomplete.getPlacePredictions(request, function (results, status) {
+        autocomplete.getPlacePredictions(request, function (results, status) {
             if (status === google.maps.places.PlacesServiceStatus.OK && callback) {
                 // center map to first result
                 callback(results[0]);
@@ -59,7 +58,7 @@ const GmapControls = ({
 
     // geocode by id
     const geocodeById = function(placeId, callback) {
-        service.geocoder.geocode({ placeId }, function(results, status) {
+        geocoder.geocode({ placeId }, function(results, status) {
             if (status !== 'OK') return window.alert('Geocoder has failed due to:', status);
             
             const place = results[0];
@@ -77,11 +76,11 @@ const GmapControls = ({
     const seekPlaceById = function(placeId) {
         geocodeById(placeId, (place) => {
             // fit map bounds
-            gmap.fitBounds(place.geometry.bounds);
+            map.fitBounds(place.geometry.bounds);
             // get latlng literal
             const latlng = getLatLngLiteralFromLocation(place.geometry.location);
             // update state with nearby locales for article filtering
-            getNearbyLocales(latlng, (_, locales) => {
+            getNearbyLocales(latlng, (locales) => {
                 setStateIndex(s => ({
                     ...s,
                     locales,
@@ -94,12 +93,13 @@ const GmapControls = ({
     // use places service to find nearby localities
     const getNearbyLocales = function(latlng, callback) {
 
-        service.places.nearbySearch(
+        places.nearbySearch(
           {
             fields: ["name"],
             location: latlng,
             radius: 20000,
             type: 'locality',
+            rankby: 'distance',
           },
           (results, status) => {
             const locales = []
@@ -111,37 +111,38 @@ const GmapControls = ({
 
             // defer to callback
             if (callback) {
-                callback(latlng, locales);
+                callback(locales);
             }
           }
         );
     }
-
+    
     /*
      *  Handlers
      */
 
     // click handler for centering on user location
     const handleUpdateOnUserLocation = function() {        
-        getUserLocation((geolocation) => {
-            if (!geolocation) {
-                return;
-            }
+        if (!userLocation) {
+            console.error('No user location')
+            return;
+        }
 
-            const latlng = {
-                lat: geolocation.coords.latitude,
-                lng: geolocation.coords.longitude,
-            }
+        const latlng = {
+            lat: userLocation.coords.latitude,
+            lng: userLocation.coords.longitude,
+        }
 
-            getNearbyLocales(latlng, (location, locales) => {
-                setStateIndex(s => ({
-                    ...s,
-                    userLocation: location,
-                    locales,
-                    localeSelected: null,
-                }))
-            });
+        centerToPosition(latlng);
+
+        getNearbyLocales(latlng, (locales) => {
+            setStateIndex(s => ({
+                ...s,
+                locales,
+                localeSelected: null,
+            }));
         });
+
     }
 
     // handle search box entry
@@ -168,10 +169,10 @@ const GmapControls = ({
 
     // update locale news for current viewport center location
     const handleUpdateOnMapCenter = function() {
-        const center = gmap.getCenter();
+        const center = map.getCenter();
         const latlng = getLatLngLiteralFromLocation(center);
-        gmap.setZoom(11);
-        getNearbyLocales(latlng, (_, locales) => {
+        map.setZoom(11);
+        getNearbyLocales(latlng, (locales) => {
             setStateIndex(s => ({
                 ...s,
                 locales,
@@ -195,7 +196,7 @@ const GmapControls = ({
     React.useEffect(() => {
         if (searchBox) {
             // attach controls to map
-            gmap.controls[google.maps.ControlPosition.TOP_LEFT].push(controlRef.current);
+            map.controls[google.maps.ControlPosition.TOP_LEFT].push(controlRef.current);
             // set data fields to return when user selects place
             searchBox.setFields(['name', 'geometry', 'place_id']);
             // set search box listener
@@ -205,11 +206,6 @@ const GmapControls = ({
             handleUpdateOnUserLocation();
         }
     }, [searchBox]);
-
-    // update map on user location change
-    React.useEffect(() => {
-        centerToPosition(userLocation);
-    }, [userLocation]);
 
     // add markers on localeWeight change
     React.useEffect(() => {
@@ -237,28 +233,25 @@ const GmapControls = ({
                 });
             });
         })).then(markerData => {
-            const markerInstances = [];
-            // render markers
-            markerData.forEach(m => {
-                // add new marker
-                const marker = new google.maps.Marker({
-                    position: m.coords,
-                    label: m.weight.toString(),
-                    title: m.localeName,
-                });
-                marker.addListener('click', selectLocale(m.localeName));
-                marker.setMap(gmap);
-                markerInstances.push(marker);
-            });
             // update marker state
-            setMarkers(markerInstances);
+            setMarkers(markerData);
         });
 
     }, [localeWeight]);
 
     // render markers on marker state change
     React.useEffect(() => {
-    }, [markers])
+        // draw markers
+        markers.forEach(m => {
+            const marker = new google.maps.Marker({
+                position: m.coords,
+                label: m.weight.toString(),
+                title: m.localeName,
+            });
+            marker.addListener('click', selectLocale(m.localeName));
+            marker.setMap(map);
+        });
+    }, [markers]);
 
     return (
       <Control ref={controlRef}>
