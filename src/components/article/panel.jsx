@@ -12,9 +12,25 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
     
     const [state, setState] = React.useState({
         loading: true,
+        fetchMore: true,
+        allArticlesFetched: false,
         error: null,
         articles: [],
+        page: 1,
     });
+
+    /*
+     *  State handlers
+     */
+
+    const handleMoreArticles = (e) => {
+        e.preventDefault();
+        setState(prevState => ({
+            ...prevState,
+            page: prevState.page + 1,
+            fetchMore: true,
+        }));
+    }
 
     /*
      *  Functions
@@ -34,19 +50,29 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
 
             const articles = json.value || [];
 
-            articles.forEach(a => {
-                a.locale = locales[0];
-            });
+            const noResults = articles.length < 1;
 
-            setState({
+            if (!noResults) {
+                articles.forEach(a => {
+                    a.locale = locales[0];
+                });
+            }
+
+            const appendToList = state.page > 1;
+
+            setState(prevState => ({
+                ...prevState,
                 loading: false,
+                fetchMore: false,
                 error: null,
-                articles,
-            });
+                articles: appendToList ? prevState.articles.concat(articles) : articles,
+                allArticlesFetched: noResults,
+            }));
         }).catch(error => {
             setState(prevState => ({
                 ...prevState,
                 loading: false,
+                fetchMore: false,
                 error,
             }))
         })
@@ -55,7 +81,7 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
     // Get articles from News API.
     // Default query without specified locales will
     // return top headlines without location filtering.
-    const fetchArticles = function(useQuery = false) {
+    const fetchArticles = function(useQuery = false, page) {
         // get date params        
         const fromDate = new Date();
         fromDate.setDate(new Date().getDate() - 14);
@@ -64,7 +90,7 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
             fromPublishedDate: fromDate.toISOString(),
             toPublishedDate: new Date().toISOString(),
             autoCorrect: false,
-            pageNumber: 1,
+            pageNumber: page || state.page,
             pageSize: 10,
             q: useQuery ? [searchTopic, locales[0]].join(' ') : 'headlines',
         }
@@ -75,23 +101,32 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
         fetchNewsApi(endpoint);
     }
 
-    /*
-     *  Effects
-     */
-
-    // fetch articles on init and locales or searchTopic update
-    React.useEffect(() => {
-
+    const getNewArticles = (page) => {
         const useQuery = locales.length > 0 || searchTopic;
-        fetchArticles(useQuery);
-        
+        fetchArticles(useQuery, page);
+
         setState(s => ({
             ...s,
             loading: true,
         }));
-        // scroll panel to top after new search
-        panelRef.current.scrollTop = 0;
+    }
+
+    /*
+     *  Effects
+     */
+
+    // fetch articles on init and locales/searchTopic update
+    React.useEffect(() => {
+        // new search => provide page number arg
+        getNewArticles(1);        
     }, [locales, searchTopic]);
+
+    // fetch more articles effect
+    React.useEffect(() => {
+        if (state.page > 1) {
+            getNewArticles();
+        }
+    }, [state.page]);
 
     // update localeWeights after fetchArticles
     React.useEffect(() => {
@@ -111,7 +146,7 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
             });
 
             // update index localeWeights
-            setLocaleWeight(weights);
+            setLocaleWeight(weights, state.page <= 1);
         }
     }, [state.loading, state.articles]);
 
@@ -136,28 +171,42 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
             </>
           )}
         </h4>
-        {state.loading ? (
+        {state.loading && !state.fetchMore ? (
             <Panel.item>
                 Searching articles... <Spinner />
             </Panel.item>
         ) : state.articles.length > 0 ? (
-            state.articles
-                .map((a, i) => (
-                    <Panel.item key={i}>
-                        <a href={a.url} target="__blank" rel="noreferrer noopener">
-                        <h5>
-                            <strong dangerouslySetInnerHTML={createMarkup(a.title)} />
-                        </h5>
-                        </a>
-                        {/* <h6>
-                            <em>{locales[0]}</em>
-                            <span> &ndash; </span>
-                            <em>{}</em>
-                        </h6> */}
-                        <p dangerouslySetInnerHTML={createMarkup((a.description || a.body).slice(0, 300))} />
-                        <em>{new Date(a.datePublished).toDateString()}</em>
+            <>
+                {state.articles
+                    .map((a, i) => (
+                        <Panel.item key={i}>
+                            <a href={a.url} target="__blank" rel="noreferrer noopener">
+                            <h5>
+                                <strong dangerouslySetInnerHTML={createMarkup(a.title)} />
+                            </h5>
+                            </a>
+                            {/* <h6>
+                                <em>{locales[0]}</em>
+                                <span> &ndash; </span>
+                                <em>{}</em>
+                            </h6> */}
+                            <p dangerouslySetInnerHTML={createMarkup((a.description || a.body).slice(0, 300))} />
+                            <em>{new Date(a.datePublished).toDateString()}</em>
+                        </Panel.item>
+                    ))
+                }
+                {!state.allArticlesFetched && (
+                    <Panel.item>
+                        {state.loading && !state.newSearch ? (
+                            <Spinner />
+                        ) : (
+                            <button onClick={handleMoreArticles}>
+                                Load More
+                            </button>
+                        )}
                     </Panel.item>
-                ))
+                )}
+            </>
         ) : (
             <Panel.item>
                 No articles found.
