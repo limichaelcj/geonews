@@ -34,6 +34,10 @@ const ArticlePanel = ({locales, setLocaleWeight, localeSelected, searchTopic}) =
 
             const articles = json.value || [];
 
+            articles.forEach(a => {
+                a.locale = locales[0];
+            });
+
             setState({
                 loading: false,
                 error: null,

@@ -243,7 +243,7 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale }) => {
         markers.forEach(m => {
             const marker = new google.maps.Marker({
                 position: m.coords,
-                label: m.weight.toString(),
+                // label: m.weight.toString(),
                 title: m.localeName,
             });
             marker.addListener('click', selectLocale(m.localeName));
