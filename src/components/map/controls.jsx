@@ -280,11 +280,11 @@ const GmapControls = () => {
 
     return (
       <Control ref={controlRef}>
-        <MapButton onClick={handleUpdateOnUserLocation} title="Get news near me">
+        <MapButton onClick={handleUpdateOnUserLocation} title="Get news near me" disabled={state.loadingArticles}>
           <i className="material-icons">my_location</i>
         </MapButton>
-        <SearchBox ref={searchBoxRef} placeholder="Search a location" />
-        <MapButton onClick={handleUpdateOnMapCenter} title="Get news at this location">
+        <SearchBox ref={searchBoxRef} placeholder="Search a location" disabled={state.loadingArticles} />
+        <MapButton onClick={handleUpdateOnMapCenter} title="Get news at this location" disabled={state.loadingArticles}>
           <i className="material-icons">pin_drop</i>
         </MapButton>
       </Control>
