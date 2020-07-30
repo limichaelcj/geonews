@@ -40,7 +40,6 @@ const ArticlePanel = () => {
 
     // Fetch articles from news API
     const fetchArticles = (useQuery = false, page) => {
-        console.log('fetcharticles: ', state);
         // get date params
         const fromDate = new Date();
         fromDate.setDate(new Date().getDate() - 14);
