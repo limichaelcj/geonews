@@ -11,7 +11,7 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
     const { userLocation } = geo;
 
     const gmap = useGmap();
-    const { google, map, places, geocoder, autocomplete } = gmap;
+    const { google, map, placesApi, places, geocoder, autocomplete } = gmap;
 
     const [searchBox, setSearchBox] = React.useState(null);
     const [markers, setMarkers] = React.useState([]);
@@ -49,12 +49,12 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
         }
         // get prediction
         autocomplete.getPlacePredictions(request, function (results, status) {
-            if (status === places.PlacesServiceStatus.OK && callback) {
+            if (status === placesApi.PlacesServiceStatus.OK && callback) {
                 // center map to first result
                 callback(results[0]);
             }   
         });
-    }, [autocomplete, places.PlacesServiceStatus.OK]);
+    }, [autocomplete, placesApi]);
 
     // geocode by id
     const geocodeById = React.useCallback((placeId, callback) => {
@@ -83,7 +83,7 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
             },
             (results, status) => {
                 const locales = []
-                if (status === places.PlacesServiceStatus.OK) {
+                if (status === placesApi.PlacesServiceStatus.OK) {
                     // get first locale only
                     locales.push(results[0].name);
                 }
@@ -94,7 +94,7 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
                 }
             }
         );
-    }, [places]);
+    }, [placesApi]);
 
     // use geocoder service to find place by ID and fit map to geometry bounds
     const seekPlaceById = React.useCallback((placeId) => {
@@ -183,10 +183,10 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
 
     // init search box after component mount
     React.useEffect(() => {
-        setSearchBox(new places.Autocomplete(searchBoxRef.current, {
+        setSearchBox(new placesApi.Autocomplete(searchBoxRef.current, {
             types: ['(regions)']
         }));
-    }, [places]);
+    }, [placesApi]);
 
     // init after search box mount
     React.useEffect(() => {
@@ -201,7 +201,7 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
             // get user location after all configurations
             handleUpdateOnUserLocation();
         }
-    }, [searchBox, google.maps.ControlPosition.TOP_LEFT, map.controls, handlePlaceChanged, handleUpdateOnUserLocation]);
+    }, [searchBox, google, map, handlePlaceChanged, handleUpdateOnUserLocation]);
 
     // add markers on localeWeight change
     React.useEffect(() => {
@@ -251,7 +251,7 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
             marker.addListener('click', selectLocale(m.localeName));
             marker.setMap(map);
         });
-    }, [markers, google.maps.Marker, map, selectLocale]);
+    }, [markers, google, map, selectLocale]);
 
     return (
       <Control ref={controlRef}>

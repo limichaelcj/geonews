@@ -24,10 +24,13 @@ function useGmapProvider() {
     
     // ref to Google map element
     const mapRef = React.useRef();
+    // ref to track when script is attached -> only allow once
+    const scriptAttached = React.useRef(false);
 
     const [state, setState] = React.useState({
         google: null,
         map: null,
+        placesApi: null,
         places: null,
         geocoder: null,
         autocomplete: null,
@@ -36,26 +39,32 @@ function useGmapProvider() {
 
     // inject google maps service in window/document
     const init = () => {
-        try {
-            const script = document.createElement('script');
-            script.src = googleScriptEndpoint;
-            script.defer = true;
-            window.initMap = () => {
-                initService();
+        if (!scriptAttached.current) {
+            try {
+                const script = document.createElement('script');
+                script.src = googleScriptEndpoint;
+                script.defer = true;
+                window.initMap = initService;
+                document.head.appendChild(script);
+                scriptAttached.current = true;
+            } catch (error) {
+                console.error(error);
+    
+                setState(prevState => ({
+                    ...prevState,
+                    error,
+                }));
             }
-            document.head.appendChild(script);
-        } catch (error) {
-            console.error(error);
-
-            setState(prevState => ({
-                ...prevState,
-                error,
-            }))
         }
     }
 
     // initialize google maps to state
     const initService = () => {
+
+        if (!mapRef.current) {
+            return;
+        }
+
         const google = window.google;
         const map = new google.maps.Map(
             mapRef.current,
@@ -68,6 +77,8 @@ function useGmapProvider() {
                 fullscreenControl: false,
             }
         );
+
+        const placesApi = google.maps.places;
         const places = new google.maps.places.PlacesService(map);
         const geocoder = new google.maps.Geocoder();
         const autocomplete = new google.maps.places.AutocompleteService();
@@ -76,6 +87,7 @@ function useGmapProvider() {
             ...prevState,
             google,
             map,
+            placesApi,
             places,
             geocoder,
             autocomplete,
@@ -87,5 +99,6 @@ function useGmapProvider() {
         ...state,
         mapRef,
         init,
+        initService,
     }
 }
