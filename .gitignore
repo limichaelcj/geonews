@@ -67,3 +67,6 @@ yarn-error.log
 .pnp.js
 # Yarn Integrity file
 .yarn-integrity
+
+# committed files that exposed sensitive data
+src/components/article/panel.jsx

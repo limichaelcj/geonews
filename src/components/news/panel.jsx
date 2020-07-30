@@ -10,7 +10,8 @@ const requestOptions = {
     method: 'GET',
     headers: {
         "x-rapidapi-host": "contextualwebsearch-websearch-v1.p.rapidapi.com",
-        "x-rapidapi-key": "***KEY REMOVED***"n        "useQueryString": true
+        "x-rapidapi-key": apiKey,
+        "useQueryString": true
     }
 }
 const timeoutDuration = 15000; //ms
