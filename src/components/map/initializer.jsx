@@ -5,7 +5,7 @@ import Async from '../util/async';
 import { useGmap } from '../context/gmap';
 import { useGeolocation } from '../context/geolocation';
 
-const GmapInitializer = ({ setStateIndex, localeWeight, selectLocale, updateMarkers }) => {
+const GmapInitializer = () => {
 
     const geo = useGeolocation();
     const gmap = useGmap();
@@ -19,12 +19,7 @@ const GmapInitializer = ({ setStateIndex, localeWeight, selectLocale, updateMark
     return (
         <MapContainer ref={gmap.mapRef}>
             <Async watch={gmap.google && gmap.map && (geo.userLocation || geo.error)}>
-                <GmapControls
-                    setStateIndex={setStateIndex}
-                    localeWeight={localeWeight}
-                    selectLocale={selectLocale}
-                    updateMarkers={updateMarkers}
-                />
+                <GmapControls />
             </Async>
         </MapContainer>
     );

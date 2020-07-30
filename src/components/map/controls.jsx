@@ -4,20 +4,53 @@ import SearchBox from './searchBox.css';
 import Control from './control.css';
 import { useGeolocation } from '../context/geolocation';
 import { useGmap } from '../context/gmap';
+import { useAppState } from '../context/appState';
 
-const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers }) => {
+const GmapControls = () => {
 
+    // refs
+    const searchBoxRef = React.useRef();
+    const controlRef = React.useRef();
+
+    // geolocation context
     const geo = useGeolocation();
     const { userLocation } = geo;
 
+    // gmap context
     const gmap = useGmap();
     const { google, map, placesApi, places, geocoder, autocomplete } = gmap;
 
-    const [searchBox, setSearchBox] = React.useState(null);
-    const [markers, setMarkers] = React.useState([]);
+    // app state context
+    const [state, setState] = useAppState();
+    const { searchBox, markers } = state;
+    
+    /*
+     *  State handlers
+     */
 
-    const searchBoxRef = React.useRef();
-    const controlRef = React.useRef();
+    const setSearchBox = (searchBox) => {
+        setState(prevState => ({
+            ...prevState,
+            searchBox,
+        }));
+    }
+
+    const setMarkers = (markers) => {
+        setState(prevState => ({
+            ...prevState,
+            markers,
+        }));
+    }
+
+    // function builder for onclick event
+    const selectLocale = (localeName) => () => {
+        setState(prevState => ({
+            ...prevState,
+            localeSelected: localeName === prevState.localeSelected
+                ? null
+                : localeName,
+        }));
+    }
 
     /*
      *  Functions
@@ -30,14 +63,6 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
         // move map center
         map.setCenter(latlng);
         map.setZoom(12);
-    }
-
-    // get latlng literal
-    const getLatLngLiteralFromLocation = function(location) {
-        return {
-            lat: location.lat(),
-            lng: location.lng(),
-        }
     }
     
     // get most relevant google place based on text input
@@ -105,8 +130,8 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
             const latlng = getLatLngLiteralFromLocation(place.geometry.location);
             // update state with nearby locales for article filtering
             getNearbyLocales(latlng, (locales) => {
-                setStateIndex(s => ({
-                    ...s,
+                setState(prevState => ({
+                    ...prevState,
                     locales,
                     localeSelected: null,
                 }));
@@ -133,8 +158,8 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
         centerToPosition(latlng);
 
         getNearbyLocales(latlng, (locales) => {
-            setStateIndex(s => ({
-                ...s,
+            setState(prevState => ({
+                ...prevState,
                 locales,
                 localeSelected: null,
             }));
@@ -169,8 +194,8 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
         const latlng = getLatLngLiteralFromLocation(center);
         map.setZoom(11);
         getNearbyLocales(latlng, (locales) => {
-            setStateIndex(s => ({
-                ...s,
+            setState(prevState => ({
+                ...prevState,
                 locales,
                 localeSelected: null,
             }));
@@ -206,18 +231,18 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
     // add markers on localeWeight change
     React.useEffect(() => {
         // only update if state allows
-        if (!updateMarkers) {
+        if (!state.updateMarkers) {
             return;
         }
         // clear map markers
         markers.forEach(m => m.setMap(null));
 
-        if (Object.keys(localeWeight).length < 1) {
+        if (Object.keys(state.localeWeight).length < 1) {
             return setMarkers([]);
         }
             
         // make new markers based on localeWeight
-        Promise.all(Object.entries(localeWeight).map(([localeName, weight]) => {
+        Promise.all(Object.entries(state.localeWeight).map(([localeName, weight]) => {
             return new Promise((resolve, reject) => {
                 getFirstPlacePrediction(localeName, (prediction) => {
                     geocodeById(prediction.place_id, (place) => {
@@ -237,7 +262,7 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
             setMarkers(markerData);
         });
 
-    }, [localeWeight]);
+    }, [state.localeWeight]);
 
     // render markers on marker state change
     React.useEffect(() => {
@@ -264,6 +289,16 @@ const GmapControls = ({ setStateIndex, localeWeight, selectLocale, updateMarkers
         </MapButton>
       </Control>
     )
+}
+
+// helpers
+
+// get latlng literal
+const getLatLngLiteralFromLocation = function (location) {
+    return {
+        lat: location.lat(),
+        lng: location.lng(),
+    }
 }
 
 export default GmapControls;

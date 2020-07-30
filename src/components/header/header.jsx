@@ -1,10 +1,24 @@
 import React from 'react';
 import HeaderCSS from './header.css';
 import Form from './form.css';
+import { useAppState } from '../context/appState';
 
-const Header = ({ setSearchTopic }) => {
+const Header = () => {
 
     const searchTopicRef = React.useRef(); 
+
+    const [_, setState] = useAppState();
+
+    /*
+     *  State handlers
+     */
+
+    const setSearchTopic = (searchTopic) => {
+        setState(prevState => ({
+            ...prevState,
+            searchTopic,
+        }));
+    }
 
     const handleSearchTopicSubmit = (e) => {
         e.preventDefault();
