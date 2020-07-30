@@ -14,7 +14,7 @@ const GmapInitializer = ({ setStateIndex, localeWeight, selectLocale, updateMark
     React.useEffect(() => {
         geo.detectUserLocation();
         gmap.init();
-    }, []);
+    }, [geo, gmap]);
 
     return (
         <MapContainer ref={gmap.mapRef}>
