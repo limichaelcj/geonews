@@ -3,7 +3,7 @@ import Layout from '../components/layout';
 import SEO from '../components/seo';
 import Header from '../components/header/header';
 import { AppContainer } from '../components/app.css';
-import ArticlePanel from '../components/article/panel';
+import NewsPanel from '../components/news/panel';
 import GmapInitializer from '../components/map/initializer';
 import { AppStateProvider } from '../components/context/appState';
 
@@ -15,7 +15,7 @@ const IndexPage = () => {
                 <SEO title="GeoNews" />
                 <Header />
                 <AppContainer>
-                    <ArticlePanel />
+                    <NewsPanel />
                     <GmapInitializer />
                 </AppContainer>
             </Layout>
